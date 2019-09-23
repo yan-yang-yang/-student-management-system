@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="dengl.css">
+</head>
+<body>
+<div id="wrapper">
+    <div><span>用户名：</span><input type="text" id="username"></div>
+    <div><span>密码：</span><input type="password" id="pwd"></div>
+    <div><input type="radio" name="id" value="0" class="type">学生 <input type="radio" name="id" value="1" class="type"> 老师</div>
+    <div><button onclick="submits()">登陆</button></div>
+</div>
+<script>
+    function submits() {
+        var identity = 0;
+        var username =document.getElementById('username').value;
+        var pwd =document.getElementById('pwd').value;
+        var input =document.getElementsByClassName('type');
+        for(var i =0;i<input.length;i++){
+            if(input[i].checked){
+                identity=input[i].value
+            }
+        }
+        var data = 'username='+username+'&pwd='+pwd+'&identity='+identity;
+        var url = 'http://127.0.0.1:3021';
+        if(username&&pwd){
+        loadXMLDoc(url,data)}
+    }
+</script>
+</body>
+<script src="AJAX.js"></script>
+</html>

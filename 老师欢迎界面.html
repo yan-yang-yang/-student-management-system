@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="欢迎_t.css">
+    <script src="js/commOnajax.js"></script>
+</head>
+<body>
+<header>
+    <span>欢迎：</span><span id="username"></span>
+    <button onclick="quiet()">退出</button>
+</header>
+<ul id="wrapper" class="wrapper">
+    <!--<li>
+        <div><span>学生：</span><span class="studentName">admin</span></div>
+        <div><span>状态：</span><span class="studentStatus">已交卷</span></div>
+    </li>
+    <li>
+        <div><span>学生：</span><span class="studentName">admin</span></div>
+        <div><span>状态：</span><span class="studentStatus">已交卷</span></div>
+    </li>-->
+</ul >
+<ul id="detail" class="wrapper">
+    <li>
+        <div><span>当前学生：<span id="name">admin</span></span></div>
+        <div><span>当前题号：<span id="num">1</span></span></div>
+        <div><span>当前题目：<span id="title">10+10?</span></span></div>
+        <div><span>当前答案：<span id="answer">20</span></span></div>
+        <div><span>您的分数：<textarea name="" id="score" ></textarea></span></div>
+        <div style="text-align: center"><button onclick="next()">下一题</button></div>
+    </li>
+</ul>
+<div id="ends">
+    <div style="text-align: center;color: red">回答完毕</div>
+    <div style="text-align: center"><button id="btn2" onclick="submits()">提交</button></div>
+</div>
+<script>
+    var index = 0;
+    var detaillist;
+    var x =document.cookie;
+    var wrapper=document.getElementById('wrapper');
+    var detail=document.getElementById('detail');
+    var name =document.getElementById('name');
+    var num =document.getElementById('num');
+    var title =document.getElementById('title');
+    var answer =document.getElementById('answer');
+    var score=document.getElementById('score');
+    var ends=document.getElementById('ends');
+    var scores=[];
+    var name;
+    var btn2=document.getElementById('btn2');
+    console.log(x);
+    var t =JSON.parse(x.split('=')[1]);
+    if(x&&t){
+        document.getElementById('username').innerHTML=t.username+'老师';
+    }else{
+        location.href='./登陆界面.html'
+    }
+    function quiet() {
+        location.href='./登陆界面.html'
+    }
+    /*进入页面发送AJAX*/
+    loadXMLDoc();
+    function loadXMLDoc() {
+        commonAjax('http://127.0.0.1:3038');
+        xmlhttp.onreadystatechange=function () {
+            if(xmlhttp.readyState==4&&xmlhttp.status==200){
+              var serverBackData =JSON.parse(xmlhttp.responseText);
+              var infoData =JSON.parse(serverBackData.info);
+                console.log(infoData);
+                infoData.forEach(function (val) {
+                    var li =document.createElement('li');
+                    for(var i =0;i<3;i++){
+                     var div =document.createElement('div');
+                        var span1 =document.createElement('span');
+                        var span2 =document.createElement('span');
+                        var span3=document.createElement('span');
+                        if(i==0){
+                            span1.innerHTML='学生：';
+                            span2.innerHTML =val.username;
+                            span2.className='studentName'
+                        }else if(i==1){
+                            span1.innerHTML='状态：';
+                            span2.innerHTML=val.status?'已交卷':'未交卷';
+                            span2.className='studentStatus';
+                        }else if(i==2){
+                            span1.innerHTML='状态：';
+                            span2.innerHTML=val.score?'已批改':'未批改';
+                            span2.className='studentStatus';
+                        }
+                        div.appendChild(span1);
+                        div.appendChild(span2);
+                        li.appendChild(div);
+                    }
+                    wrapper.appendChild(li);
+                    /*点击事件*/
+                    li.onclick=function () {
+                          index=0;
+                        if(val.status){
+                            wrapper.style.display='none';
+                            detail.style.display='block';
+                            /*发送AJAX请求，获取该学生的答题信息*/
+                            detail_loadXML()
+                        }else if(val.score){
+                           /* wrapper.style.display='block';
+                            detail.style.display='none';*/
+                        }
+                        else {
+                            alert('还未答题，请通知尽快答题')
+                        }
+                    }
+                })
+            }
+        };
+    }/*获取学生详细答题AJAX*/
+    function detail_loadXML() {
+        commonAjax('http://127.0.0.1:3039');
+        xmlhttp.onreadystatechange=function () {
+            if(xmlhttp.readyState==4&&xmlhttp.status==200){
+                detaillist=JSON.parse(xmlhttp.responseText);
+                console.log(detaillist);
+                console.log(index);
+                name.innerHTML=detaillist[index].username;
+                name=detaillist[index].username;
+                num.innerHTML=detaillist[index].answer.index;
+                title.innerHTML=detaillist[index].details.question;
+                answer.innerHTML=detaillist[index].answer.answer_content;
+
+            }
+        }
+    }
+    /*点击下一题*/
+    function next() {
+        if(score.value){
+            scores.push(parseInt(score.value));
+            score.value='';
+        }else{
+            alert("请输入您的打分！！");
+            return
+        }
+
+        ++index;
+        if(index<=detaillist.length-1){
+            console.log(index);
+            name.innerHTML=detaillist[index].username;
+            num.innerHTML=detaillist[index].answer.index;
+            title.innerHTML=detaillist[index].details.question;
+            answer.innerHTML=detaillist[index].answer.answer_content;
+        }else{
+            detail.style.display='none';
+            wrapper.style.display='none';
+            ends.style.display='block';
+        }
+    }
+    function submit_loadXMLDoc() {
+        var submit_data ='username='+JSON.stringify(name)+"&scores="+JSON.stringify(scores);
+        commonAjax('http://127.0.0.1:3036',submit_data);
+        xmlhttp.onreadystatechange=function () {
+            if(xmlhttp.readyState==4&&xmlhttp.status==200){
+                var isInsert = JSON.parse(xmlhttp.responseText);
+                if(isInsert.insert){
+                    wrapper.style.display='block';
+                    ends.style.display='none';
+                    detail.style.display='none';
+                }
+            }
+        }
+    }
+    /*提交*/
+    function submits() {
+        console.log(detaillist[1].username);
+        btn2.setAttribute('disabled','disabled');
+        submit_loadXMLDoc();
+    }
+</script>
+</body>
+</html>

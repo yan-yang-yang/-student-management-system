@@ -1,0 +1,42 @@
+*{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+html ,body{
+    width: 100%;
+    height: 100%;
+    background-color: #40bfbf;
+    display: flex;
+align-items: center;
+    justify-content: center;
+}
+#wrapper{
+    width: 600px;
+    height: 600px;
+    padding: 20px;
+    box-sizing: border-box;
+    border: 1px solid black;
+}
+#wrapper div{
+    height: 50px;
+    line-height: 50px;
+    margin: 10px 0;
+}
+#wrapper div span{
+    display:inline-block;
+    width: 120px;
+}
+#wrapper div button{
+    width: 120px;
+    outline: none;
+    background-color: orange;
+    color: black;
+    font-weight: bold;
+    height: 40px;
+    line-height: 40px;
+    cursor: pointer;
+}
+.error{
+    color: red;
+}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="欢迎.css">
+    <script src="js/commOnajax.js"></script>
+</head>
+<body>
+<header>
+    <span>欢迎：</span><span id="username"></span>
+    <button onclick="quiet()">退出</button>
+</header>
+<div>
+    我是学生主界面
+</div>
+<div id="group">
+    <div id="start"><button onclick="startNow()">点击开始答题</button></div>
+     <div id="questionBonk">
+         <div class="tips">tips: <span>答题期间请勿刷新界面</span></div>
+         <h3>题目：</h3>
+         <p class="topic"></p>
+         <h3>您的答案是：</h3>
+         <textarea name="" id="" cols="30" rows="10" class="answer"></textarea>
+         <div><button style="text-align: center" id="btn1" onclick="next()">下一题</button></div>
+     </div>
+    <div id="end">
+        <div style="text-align: center;color: red">提示：答题已结束</div>
+        <div style="text-align: center"><button id="btn2" onclick="submit()">提交</button></div></div>
+
+</div>
+<div id="model">
+    <p id="model_p">试卷已提交，请等待老师批改成绩</p>
+    <div style="text-align: center" onclick="quiet()"><button>退出</button></div>
+</div>
+<script>
+    var x =document.cookie;
+    var datalist;
+    var t =JSON.parse(x.split('=')[1]);
+    var textarea= document.getElementsByClassName('answer')[0];
+    var questionBonk=document.getElementById('questionBonk');
+    var model =document.getElementById('model');
+    if(x&&t){
+        document.getElementById('username').innerHTML=t.username+'学生';
+    }else{
+        location.href='./登陆界面.html'
+    }
+    function quiet() {
+        location.href='./登陆界面.html';
+        model.style.display='none';
+    }
+    /*当点击开始答题时候*/
+    function startNow() {
+        var start =document.getElementById('start');
+        var questionBonk=document.getElementById('questionBonk');
+        start.style.display = 'none';
+        questionBonk.style.display ='block';
+        loadXMLDoc();
+    }
+    var xmlhttp;
+    function loadXMLDoc() {
+        commonAjax('http://127.0.0.1:3020');
+        xmlhttp.onreadystatechange =function () {
+            if(xmlhttp.readyState==4&&xmlhttp.status==200){
+                datalist =JSON.parse(xmlhttp.responseText);
+                var topic =document.getElementsByClassName('topic')[0];
+                topic.innerHTML=datalist.question_content;
+            }
+        }
+    }
+
+    /*点击下一题*/
+    var questions =[];
+    function next() {
+        if(questions.length<=1){
+            var obj ={};
+            obj.index=datalist.question_id;
+            obj.answer_content=textarea.value;
+            questions.push(obj);
+            textarea.value='';
+            loadXMLDoc();
+            console.log(questions.length);
+        }
+        if(questions.length>=2){
+            var end=document.getElementById('end');
+            questionBonk.style.display='none';
+            end.style.display='block'
+        }
+    }
+    /*点击提交*/
+    function submit_loadXMLDoc() {
+        var submit_data ='username='+t.username+"&answer="+JSON.stringify(questions);
+        console.log(submit_data);
+        commonAjax('http://127.0.0.1:3033',submit_data);
+        xmlhttp.onreadystatechange=function () {
+            if(xmlhttp.readyState==4&&xmlhttp.status==200){
+                var isInsert = JSON.parse(xmlhttp.responseText);
+                if(isInsert.insert){
+                    model.style.display='block'
+                }
+            }
+        }
+    }
+    function submit() {
+    var btn2=document.getElementById('btn2');
+    btn2.setAttribute('disabled','disabled');
+    submit_loadXMLDoc();
+    }
+</script>
+</body>
+</html>

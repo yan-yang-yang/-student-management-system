@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="结束界面.css">
+</head>
+<body>
+<div id="model">
+    <p id="model_p">试卷已提交，请等待老师批改成绩</p>
+    <div style="text-align: center" onclick="quiet()"><button>退出</button></div>
+</div>
+<script>
+    function quiet() {
+        location.href='./登陆界面.html';
+        model.style.display='none';
+    }
+</script>
+</body>
+</html>
